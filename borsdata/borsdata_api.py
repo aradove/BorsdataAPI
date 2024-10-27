@@ -2,6 +2,8 @@ import requests
 import pandas as pd
 import time
 from borsdata import constants as constants
+import os
+from sys import exit
 
 # pandas options for string representation of data frames (print)
 pd.set_option("display.max_columns", None)
@@ -9,8 +11,13 @@ pd.set_option("display.max_rows", None)
 
 
 class BorsdataAPI:
-    def __init__(self, _api_key):
-        self._api_key = _api_key
+    def __init__(self):
+        api_env_var_name = "BORSDATA_API_KEY"
+        api_key = os.environ.get(api_env_var_name)
+        if api_key is None:
+            raise ValueError(f"Error, you need to set the environment variable {api_env_var_name}.")
+
+        self._api_key = api_key
         self._url_root = "https://apiservice.borsdata.se/v1/"
         self._last_api_call = 0
         self._api_calls_per_second = 10
@@ -28,7 +35,7 @@ class BorsdataAPI:
         if time_delta < 1 / self._api_calls_per_second:
             time.sleep(1 / self._api_calls_per_second - time_delta)
         response = requests.get(self._url_root + url, self._get_params(**kwargs))
-        print(response.url)
+        print(response.url.replace(self._api_key, ""))
         self._last_api_call = time.time()
         if response.status_code != 200:
             print(f"API-Error, status code: {response.status_code}")
@@ -491,7 +498,7 @@ class BorsdataAPI:
 
 if __name__ == "__main__":
     # Main, call functions here.
-    api = BorsdataAPI(constants.API_KEY)
+    api = BorsdataAPI()
     api.get_translation_metadata()
     api.get_instruments_updated()
     api.get_kpi_summary(3, "year")

@@ -18,7 +18,7 @@ pd.set_option('display.max_rows', None)
 
 class BorsdataClient:
     def __init__(self):
-        self._borsdata_api = BorsdataAPI(constants.API_KEY)
+        self._borsdata_api = BorsdataAPI()
         self._instruments_with_meta_data = pd.DataFrame()
 
     def instruments_with_meta_data(self):
@@ -30,7 +30,7 @@ class BorsdataClient:
         if len(self._instruments_with_meta_data) > 0:
             return self._instruments_with_meta_data
         else:
-            self._borsdata_api = BorsdataAPI(constants.API_KEY)
+            self._borsdata_api = BorsdataAPI()
             # fetching data from api
             countries = self._borsdata_api.get_countries()
             branches = self._borsdata_api.get_branches()
